@@ -52,7 +52,7 @@ async function run() {
 		app.get('/sampleServices', async (req, res) => {
 			const query = {};
 			const cursor = servicesCollection.find(query);
-			const services = await cursor.limit(4).toArray();
+			const services = await cursor.limit(3).toArray();
 			res.send(services);
 		});
 
@@ -87,15 +87,26 @@ async function run() {
 			res.send(reviews);
 		});
 
-		// app.put('/reviews/:id', async (req, res) => {
-		// 	const id = req.params.id;
-		// 	const query = { _id: ObjectId(id) };
-		// 	const updatedDoc = {
-		// 		$set: {
-		// 			status: ''
-		// 		}
-		// 	};
-		// });
+		app.put('/reviews/:id', async (req, res) => {
+			const id = req.params.id;
+			const filter = { _id: ObjectId(id) };
+			const review = req.body;
+			const option = { upsert: true };
+
+			const updateReview = {
+				$set: {
+					name: review.name,
+					email: review.email,
+					comments: review.comments
+				}
+			};
+			const result = await reviewCollection.updateOne(
+				filter,
+				updateReview,
+				option
+			);
+			res.send(result);
+		});
 
 		app.delete('/reviews/:id', async (req, res) => {
 			const id = req.params.id;
